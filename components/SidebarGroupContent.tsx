@@ -1,6 +1,4 @@
 "use client";
-
-import { Note } from "@prisma/client";
 import {
   SidebarGroupContent as SidebarGroupContentShadCN,
   SidebarMenu,
@@ -8,7 +6,7 @@ import {
 } from "@/components/ui/sidebar";
 import { SearchIcon } from "lucide-react";
 import { Input } from "./ui/input";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Fuse from "fuse.js";
 import SelectNoteButton from "./SelectNoteButton";
 import DeleteNoteButton from "./DeleteNoteButton";
@@ -16,18 +14,18 @@ import { useNoteList } from "@/app/providers/NoteListProvider";
 
 function SidebarGroupContent() {
   const [searchText, setSearchText] = useState("");
-  const { notes, setNotes } = useNoteList();
+  const { noteList, setNotes } = useNoteList();
 
   const fuse = useMemo(() => {
-    return new Fuse(notes, {
+    return new Fuse(noteList, {
       keys: ["content"],
       threshold: 0.4,
     });
-  }, [notes]);
+  }, [noteList]);
 
   const filteredNotes = searchText
     ? fuse.search(searchText).map((result) => result.item)
-    : notes;
+    : noteList;
 
   const deleteNoteLocally = (noteId: string) => {
     setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
@@ -39,7 +37,7 @@ function SidebarGroupContent() {
         <SearchIcon className="absolute left-2 size-4" />
         <Input
           className="bg-muted pl-8"
-          placeholder="Search your notes..."
+          placeholder="Search your noteList..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
         />

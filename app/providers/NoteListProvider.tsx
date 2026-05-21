@@ -4,20 +4,26 @@ import { Note } from "@prisma/client";
 import { createContext, useContext, useState } from "react";
 
 type NoteListProviderType = {
-  notes: Note[];
+  noteList: Note[];
   setNotes: React.Dispatch<React.SetStateAction<Note[]>>;
 };
 
 export const NoteListProviderContext = createContext<NoteListProviderType>({
-  notes: [],
+  noteList: [],
   setNotes: () => {},
 });
 
-function NoteListProvider({ children }: { children: React.ReactNode }) {
-  const [notes, setNotes] = useState<Note[]>([]);
+function NoteListProvider({
+  children,
+  initialNotes,
+}: {
+  children: React.ReactNode;
+  initialNotes: Note[];
+}) {
+  const [noteList, setNotes] = useState<Note[]>(initialNotes);
 
   return (
-    <NoteListProviderContext.Provider value={{ notes, setNotes }}>
+    <NoteListProviderContext.Provider value={{ noteList, setNotes }}>
       {children}
     </NoteListProviderContext.Provider>
   );

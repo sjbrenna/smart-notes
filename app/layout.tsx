@@ -9,6 +9,8 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSidebar";
 import NoteProvider from "./providers/NoteProvider";
 import NoteListProvider from "./providers/NoteListProvider";
+import { getUser } from "@/lib/supabase/server";
+import { prisma } from "@/prisma/prisma";
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -16,11 +18,24 @@ export const metadata: Metadata = {
   title: "Smart Notes",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getUser();
+
+  const notes = user
+    ? await prisma.note.findMany({
+        where: {
+          authorId: user.id,
+        },
+        orderBy: {
+          updatedAt: "desc",
+        },
+      })
+    : [];
+
   return (
     <html
       lang="en"
@@ -34,7 +49,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NoteListProvider>
+          <NoteListProvider initialNotes={notes}>
             <NoteProvider>
               <SidebarProvider>
                 <AppSidebar />

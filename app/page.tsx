@@ -2,7 +2,6 @@ import NewNoteButton from "@/components/ui/NewNoteButton";
 import NoteTextInput from "@/components/ui/NoteTextInput";
 import { getUser } from "@/lib/supabase/server";
 import { prisma } from "@/prisma/prisma";
-import React from "react";
 
 type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
