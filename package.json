@@ -7,10 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "prebuild": "prisma generate",
     "migrate": "dotenv -e .env.local -- npx prisma migrate dev",
     "reset": "dotenv -e .env.local -- npx prisma migrate reset",
-    "generate": "dotenv -e .env.local -- npx prisma generate",
-    "postinstall": "prisma generate"
+    "generate": "dotenv -e .env.local -- npx prisma generate"
   },
   "prisma": {
     "schema": "prisma/schema.prisma"
