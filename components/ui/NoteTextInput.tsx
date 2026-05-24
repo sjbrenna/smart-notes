@@ -13,8 +13,6 @@ type Props = {
   startingNoteText: string;
 };
 
-let updateTimeout: NodeJS.Timeout;
-
 function NoteTextInput({ noteId, startingNoteText }: Props) {
   const noteIdParam = useSearchParams().get("noteId") || "";
   const { noteText, setNoteText } = useNote();
@@ -37,7 +35,7 @@ function NoteTextInput({ noteId, startingNoteText }: Props) {
       value={noteText}
       onChange={(e) => setNoteText(e.target.value)}
       placeholder="Type your note here.."
-      className="placeholder:text-muted-foreground mb-4 h-full max-w-4xl resize-none border p-4 focus-visible:ring-0 focus-visible:ring-offset-0"
+      className="placeholder:text-muted-foreground mb-4 h-full max-w-4xl resize-none overflow-y-auto border p-4 focus-visible:ring-0 focus-visible:ring-offset-0"
     />
   );
 }
