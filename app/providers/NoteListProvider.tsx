@@ -1,6 +1,6 @@
 "use client";
 
-import { Note } from "@prisma/client";
+import { Note } from "../schema-types";
 import { createContext, useContext, useState } from "react";
 
 type NoteListProviderType = {
