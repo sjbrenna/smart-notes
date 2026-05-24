@@ -17,7 +17,7 @@ type Props = {
 function NewNoteButton({ user }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { notes, setNotes } = useNoteList();
+  const { noteList, setNotes } = useNoteList();
 
   const handleClickNewNoteButton = async () => {
     if (!user) {

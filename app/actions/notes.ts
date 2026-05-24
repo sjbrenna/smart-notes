@@ -51,3 +51,21 @@ export const deleteNoteAction = async (noteId: string) => {
     return handleError(error);
   }
 };
+
+export const updateNoteTitleAction = async (
+  noteId: string,
+  newTitle: string,
+) => {
+  const user = await getUser();
+  if (!user) throw new Error("You must be logged in to edit a note's title");
+  console.log("updated title to: " + newTitle);
+  await prisma.note.update({
+    where: {
+      id: noteId,
+      authorId: user.id,
+    },
+    data: {
+      title: newTitle,
+    },
+  });
+};
