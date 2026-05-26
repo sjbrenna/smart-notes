@@ -35,7 +35,7 @@ function NoteTitle({ noteId, initialTitle }: Props) {
   useEffect(() => {
     updateNoteTitleAction(noteId, debouncedTitle);
     console.log("tried calling update note title");
-  }, [debouncedTitle]);
+  }, [debouncedTitle, noteId]);
 
   return (
     <input

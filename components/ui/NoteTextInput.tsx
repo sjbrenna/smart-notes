@@ -27,7 +27,6 @@ function NoteTextInput({ noteId, startingNoteText }: Props) {
 
   useEffect(() => {
     updateNoteAction(noteId, debouncedNoteText);
-    console.log("performed update");
   }, [debouncedNoteText]);
 
   return (
