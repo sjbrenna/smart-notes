@@ -22,25 +22,18 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Ensure session is loaded early
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const { pathname, searchParams } = new URL(request.url);
 
-  // -------------------------
-  // Auth route redirect
-  // -------------------------
   const isAuthRoute = pathname === "/login" || pathname === "/sign-up";
 
   if (isAuthRoute && user) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // -------------------------
-  // Protect note access
-  // -------------------------
   const urlNoteId = searchParams.get("noteId");
 
   if (urlNoteId) {
@@ -59,10 +52,6 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(new URL("/", request.url));
     }
   }
-
-  // -------------------------
-  // Auto-redirect to newest note
-  // -------------------------
   if (!urlNoteId && pathname === "/" && user) {
     const newestNote = await prisma.note.findFirst({
       where: {
