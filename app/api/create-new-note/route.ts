@@ -13,6 +13,7 @@ export async function POST(request: NextRequest) {
     },
   });
 
+  console.log(id);
   return NextResponse.json({
     noteId: id,
   });

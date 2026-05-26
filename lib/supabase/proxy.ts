@@ -82,7 +82,7 @@ export async function updateSession(request: NextRequest) {
         new URL("/", process.env.NEXT_PUBLIC_BASE_URL),
       );
     } else {
-      const note = prisma.note.findFirst({
+      const note = await prisma.note.findFirst({
         where: {
           id: urlNoteId,
           authorId: user.id,

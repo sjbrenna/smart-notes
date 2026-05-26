@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
     },
   });
 
+  console.log(newestNoteId?.id);
   return NextResponse.json({
     newestNoteId: newestNoteId?.id,
   });
