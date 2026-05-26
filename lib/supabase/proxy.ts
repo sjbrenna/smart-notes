@@ -3,12 +3,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  });
+  const response = NextResponse.next({ request });
 
-  // With Fluid compute, don't put this client in a global environment
-  // variable. Always create a new one on each request.
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
@@ -17,84 +13,77 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet, headers) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
-          supabaseResponse = NextResponse.next({
-            request,
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
           });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options),
-          );
-          Object.entries(headers).forEach(([key, value]) =>
-            supabaseResponse.headers.set(key, value),
-          );
         },
       },
     },
   );
 
-  // Do not run code between createServerClient and
-  // supabase.auth.getClaims(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
+  // Ensure session is loaded early
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // IMPORTANT: If you remove getClaims() and you use server-side rendering
-  // with the Supabase client, your users may be randomly logged out.
+  const { pathname, searchParams } = new URL(request.url);
 
-  // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
-  // creating a new response object with NextResponse.next() make sure to:
-  // 1. Pass the request in it, like so:
-  //    const myNewResponse = NextResponse.next({ request })
-  // 2. Copy over the cookies, like so:
-  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-  // 3. Change the myNewResponse object to fit your needs, but avoid changing
-  //    the cookies!
-  // 4. Finally:
-  //    return myNewResponse
-  // If this is not done, you may be causing the browser and server to go out
-  // of sync and terminate the user's session prematurely!
+  // -------------------------
+  // Auth route redirect
+  // -------------------------
+  const isAuthRoute = pathname === "/login" || pathname === "/sign-up";
 
-  const isAuthRoute =
-    request.nextUrl.pathname === "/login" ||
-    request.nextUrl.pathname === "/sign-up";
-
-  if (isAuthRoute) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      return NextResponse.redirect(
-        new URL("/", process.env.NEXT_PUBLIC_BASE_URL),
-      );
-    }
+  if (isAuthRoute && user) {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
-  const { searchParams, pathname } = new URL(request.url);
-
+  // -------------------------
+  // Protect note access
+  // -------------------------
   const urlNoteId = searchParams.get("noteId");
+
   if (urlNoteId) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.redirect(
-        new URL("/", process.env.NEXT_PUBLIC_BASE_URL),
-      );
-    } else {
-      const note = await prisma.note.findFirst({
-        where: {
-          id: urlNoteId,
-          authorId: user.id,
-        },
-      });
-      if (!note) {
-        return NextResponse.redirect(
-          new URL("/", process.env.NEXT_PUBLIC_BASE_URL),
-        );
-      }
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    const note = await prisma.note.findFirst({
+      where: {
+        id: urlNoteId,
+        authorId: user.id,
+      },
+    });
+
+    if (!note) {
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
-  return supabaseResponse;
+  // -------------------------
+  // Auto-redirect to newest note
+  // -------------------------
+  if (!urlNoteId && pathname === "/" && user) {
+    const newestNote = await prisma.note.findFirst({
+      where: {
+        authorId: user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const newestNoteId = newestNote?.id;
+
+    if (newestNoteId) {
+      const url = request.nextUrl.clone();
+      url.searchParams.set("noteId", newestNoteId);
+      return NextResponse.redirect(url);
+    }
+  }
+
+  return response;
 }
