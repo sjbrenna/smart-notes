@@ -1,3 +1,4 @@
+import { prisma } from "@/prisma/prisma";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -71,6 +72,30 @@ export async function updateSession(request: NextRequest) {
 
   const { searchParams, pathname } = new URL(request.url);
 
+  const urlNoteId = searchParams.get("noteId");
+  if (urlNoteId) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.redirect(
+        new URL("/", process.env.NEXT_PUBLIC_BASE_URL),
+      );
+    } else {
+      const note = prisma.note.findFirst({
+        where: {
+          id: urlNoteId,
+          authorId: user.id,
+        },
+      });
+      if (!note) {
+        return NextResponse.redirect(
+          new URL("/", process.env.NEXT_PUBLIC_BASE_URL),
+        );
+      }
+    }
+  }
+
   if (!searchParams.get("noteId") && pathname === "/") {
     const {
       data: { user },
@@ -84,16 +109,6 @@ export async function updateSession(request: NextRequest) {
         const url = request.nextUrl.clone();
         url.searchParams.set("noteId", newestNoteId);
         return NextResponse.redirect(url);
-      } else {
-        const { noteId } = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/create-new-note?userId=${user.id}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          },
-        ).then((res) => res.json());
       }
     }
   }

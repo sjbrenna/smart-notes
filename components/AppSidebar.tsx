@@ -5,26 +5,11 @@ import {
   SidebarGroupLabel,
 } from "@/components/ui/sidebar";
 import { getUser } from "@/lib/supabase/server";
-import { Note } from "@/app/schema-types";
-import { prisma } from "@/prisma/prisma";
 import Link from "next/link";
 import SidebarGroupContent from "./SidebarGroupContent";
 
 async function AppSidebar() {
   const user = await getUser();
-
-  let notes: Note[] = [];
-
-  if (user) {
-    notes = await prisma.note.findMany({
-      where: {
-        authorId: user.id,
-      },
-      orderBy: {
-        updatedAt: "desc",
-      },
-    });
-  }
 
   return (
     <Sidebar>

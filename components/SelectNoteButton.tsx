@@ -43,7 +43,9 @@ function SelectNoteButton({ note }: Props) {
     >
       <Link href={`/?noteId=${note.id}`} className="flex h-fit flex-col">
         {/*Title here*/}
-        <p className="font-bold">{note.title ? note.title : "Untitled"}</p>
+        <p className="w-full truncate font-bold">
+          {note.title ? note.title : "Untitled"}
+        </p>
         <p className="w-full truncate overflow-hidden text-ellipsis whitespace-nowrap">
           {noteText}
         </p>

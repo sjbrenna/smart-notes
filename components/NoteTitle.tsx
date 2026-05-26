@@ -34,12 +34,11 @@ function NoteTitle({ noteId, initialTitle }: Props) {
 
   useEffect(() => {
     updateNoteTitleAction(noteId, debouncedTitle);
-    console.log("tried calling update note title");
   }, [debouncedTitle]);
 
   return (
     <input
-      className="font-bold"
+      className="w-full font-bold"
       placeholder="Enter a title..."
       value={title}
       onChange={(e) => setTitle(e.target.value)}
