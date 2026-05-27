@@ -4,7 +4,7 @@ import { useNoteList } from "@/app/providers/NoteListProvider";
 import useDebounce from "@/hooks/useDebouncedFunction";
 import { debounceTimeout } from "@/lib/constants";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   noteId: string;
@@ -13,15 +13,8 @@ type Props = {
 
 function NoteTitle({ noteId, initialTitle }: Props) {
   const [title, setTitle] = useState(initialTitle);
-  const noteIdParam = useSearchParams().get("noteId") || "";
   const debouncedTitle = useDebounce(title, debounceTimeout);
-  const { noteList, setNotes } = useNoteList();
-
-  useEffect(() => {
-    if (noteIdParam === noteId) {
-      setTitle(initialTitle);
-    }
-  }, [noteIdParam, noteId, setTitle, initialTitle]);
+  const { setNotes } = useNoteList();
 
   //update title in sidebar
   useEffect(() => {
@@ -34,7 +27,7 @@ function NoteTitle({ noteId, initialTitle }: Props) {
 
   useEffect(() => {
     updateNoteTitleAction(noteId, debouncedTitle);
-  }, [debouncedTitle]);
+  }, [debouncedTitle, noteId]);
 
   return (
     <input
