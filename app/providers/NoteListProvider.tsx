@@ -21,7 +21,6 @@ function NoteListProvider({
   initialNotes: Note[];
 }) {
   const [noteList, setNotes] = useState<Note[]>(initialNotes);
-
   return (
     <NoteListProviderContext.Provider value={{ noteList, setNotes }}>
       {children}

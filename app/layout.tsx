@@ -35,7 +35,7 @@ export default async function RootLayout({
         },
       })
     : [];
-
+  console.log("LAYOUT RENDER - FETCHING NOTES");
   return (
     <html
       lang="en"
@@ -49,7 +49,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <NoteListProvider initialNotes={notes}>
+          <NoteListProvider key={user?.id ?? "guestss"} initialNotes={notes}>
             <NoteProvider>
               <SidebarProvider>
                 <AppSidebar />

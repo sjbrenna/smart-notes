@@ -73,3 +73,22 @@ export const updateNoteTitleAction = async (
     return handleError(error);
   }
 };
+
+export const getAllNotesAction = async () => {
+  const user = await getUser();
+  if (!user) {
+    return [];
+  }
+
+  const notes = user
+    ? await prisma.note.findMany({
+        where: {
+          authorId: user.id,
+        },
+        orderBy: {
+          updatedAt: "desc",
+        },
+      })
+    : [];
+  return notes;
+};
